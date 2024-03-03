@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Your head content -->
+    <style>
+        /* CSS for tabs */
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .tab button {
+            background-color: #55c57a;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 20px;
+            transition: 0.3s;
+            border-radius: 10px 10px 0 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-right: 5px;
+        }
+
+        .tab button:hover {
+            background-color: #4bc08a;
+        }
+
+        .tab button.active {
+            background-color: #4bc08a;
+        }
+
+         /* Additional button color */
+         .secondary-button {
+            background-color: #f44336;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+
+        .secondary-button:hover {
+            background-color: #d32f2f;
+        }
+
+        /* CSS for tab content */
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+            animation: fadeEffect 0.5s;
+        }
+
+        @keyframes fadeEffect {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* CSS for the table */
+        #attendanceTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #attendanceTable th, #attendanceTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        #attendanceTable th {
+            background-color: #f2f2f2;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .sort-icon::after {
+            content: ' ▼';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .sort-asc-icon::after {
+            content: ' ▲';
+        }
+
+        /* CSS for chart container */
+        #attendanceChartContainer {
+            margin-top: 20px;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container fade-in">
+        <!-- Logout button -->
+        <button onclick="logout()" class="secondary-button" style="float: right; margin-top: 10px; margin-right: 10px;">Logout</button>
+    
+    
+    </div>
+    
+
+    <div class="container fade-in">
+        <h2 style="color: #333;">Welcome <%= username %>!</h2>
+        <!-- Tabs -->
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'welcome')" style="background-color: #4CAF50;">Welcome</button>
+            <button class="tablinks" onclick="openTab(event, 'attendance')" style="background-color: #008CBA;">View Attendance</button>
+            <button class="tablinks" onclick="openTab(event, 'profile')" style="background-color: #f44336;">Profile</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="welcome" class="tabcontent">
+            <!-- Welcome content with button for taking attendance -->
+            <h3 style="color: #55c57a;">Welcome</h3>
+            <p>Welcome to your dashboard! Explore the tabs to manage your tasks, view attendance, and update your profile.</p>
+            <button onclick="takeAttendance()" class="secondary-button">Take Attendance</button>
+        </div>
+
+        <div id="attendance" class="tabcontent">
+            <!-- Attendance content -->
+            <h3>Attendance:</h3>
+            
+            <!-- Button to select date -->
+            <label for="attendanceDate">Select Date: </label>
+            <input type="date" id="attendanceDate">
+            <button onclick="displayAttendanceByDate()" class="secondary-button">Display Attendance</button>
+            
+
+            <!-- Table to display attendance records -->
+            <table id="attendanceTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)" style="position: relative;">Date <span class="sort-icon"></span></th>
+                        <th onclick="sortTable(1)" style="position: relative;">Time <span class="sort-icon"></span></th>
+                        <th onclick="sortTable(2)" style="position: relative;">Student Name <span class="sort-icon"></span></th>
+                        <th onclick="sortTable(3)" style="position: relative;">Attendance Status <span class="sort-icon"></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% attendanceData.forEach(data => { %>
+                        <tr>
+                            <!-- Displaying date -->
+                            <td><%= data.time.toDateString() %></td>
+                            <!-- Displaying time -->
+                            <td><%= data.time.toLocaleTimeString() %></td>
+                            <td><%= data.studentName %></td>
+                            <td><%= data.logData %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+                
+                
+            </table>
+            
+            <!-- Area to display charts -->
+            <div id="attendanceChartContainer">
+                <canvas id="attendanceChart"></canvas>
+            </div>
+        </div>
+
+        <div id="profile" class="tabcontent">
+            <!-- Profile content -->
+            <h3>Profile</h3>
+            <p>Teacher Information:</p>
+            <!-- Display teacher information such as number, email, teacher name, subject, class, etc. -->
+        </div>
+    </div>
+
+    <!-- JavaScript for tab functionality -->
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Functionality for taking attendance button
+        function takeAttendance() {
+            // Redirect to the specified URL
+            window.location.href = "https://keshav-lemon.vercel.app/";
+        }
+
+        // Functionality for sorting the table
+        function sortTable(col) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("attendanceTable");
+            switching = true;
+            // Set the sorting direction to ascending
+            dir = "asc";
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                // Loop through all table rows except the header
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    // Get the two elements you want to compare, one from current row and one from the next
+                    x = rows[i].getElementsByTagName("TD")[col];
+                    y = rows[i + 1].getElementsByTagName("TD")[col];
+                    // Check if the two rows should switch place, based on the direction, asc or desc
+                    if (dir === "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            // If so, mark as a switch and break the loop
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir === "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            // If so, mark as a switch and break the loop
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    // If a switch has been marked, make the switch and mark that a switch has been done
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    // Increase this count for each switch
+                    switchcount++;
+                } else {
+                    // If no switching has been done and the direction is "asc", set the direction to "desc" and run the loop again
+                    if (switchcount === 0 && dir === "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+            // Toggle sort icon
+            var sortIcons = document.querySelectorAll('.sort-icon');
+            sortIcons.forEach(icon => icon.classList.remove('sort-asc-icon'));
+            var activeSortIcon = table.rows[0].getElementsByTagName("TH")[col].querySelector('.sort-icon');
+            if (dir === "asc") {
+                activeSortIcon.classList.add('sort-asc-icon');
+            }
+        }
+        function displayAttendanceByDate() {
+    // Get the selected date from the input field
+    var selectedDate = new Date(document.getElementById("attendanceDate").value);
+
+    // Get all table rows
+    var rows = document.getElementById("attendanceTable").rows;
+
+    // Loop through rows and show/hide based on selected date
+    for (var i = 1; i < rows.length; i++) {
+        var dateCell = new Date(rows[i].getElementsByTagName("TD")[0].innerText);
+
+        // Compare the dates with the same precision (ignoring time)
+        if (dateCell.toDateString() === selectedDate.toDateString()) {
+            rows[i].style.display = "";
+        } else {
+            rows[i].style.display = "none";
+        }
+    }
+}
+
+function logout() {
+    // Redirect to the login page or any other action you want to perform on logout
+    window.location.href = "/"; // Assuming your login page is served at the root URL
+}
+
+
+        
+        // By default, open the welcome tab
+        document.getElementById("welcome").style.display = "block";
+    </script>
+
+
+
+    <!-- Include Chart.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <!-- JavaScript for chart functionality -->
+    <script>
+        // Your chart functionality here
+    </script>
+</body>
+</html>
