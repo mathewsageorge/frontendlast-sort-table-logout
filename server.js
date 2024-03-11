@@ -32,7 +32,7 @@ const users = {
     mathews: { username: 'mathews', password: '1', students: [{ name: 'Student 1', attendance: 'Present' }, { name: 'Student 2', attendance: 'Absent' }] },
     keshav: { username: 'keshav', password: '2', students: [{ name: 'Student 1', attendance: 'Present' }, { name: 'Student 2', attendance: 'Absent' }] },
     ansu: { username: 'ansu', password: '3', students: [{ name: 'Student 1', attendance: 'Present' }, { name: 'Student 2', attendance: 'Absent' }] },
-    teacher4: { username: 'neha', password: '4', students: [{ name: 'Student 1', attendance: 'Present' }, { name: 'Student 2', attendance: 'Absent' }] }
+    neha: { username: 'neha', password: '4', students: [{ name: 'Student 1', attendance: 'Present' }, { name: 'Student 2', attendance: 'Absent' }] }
 };
 
 
